@@ -18,7 +18,7 @@ type xkcd struct {
 	Day        string `json:"day"`
 }
 
-const NUM_COMICS = 5
+const NUM_COMICS = 2987
 
 func main() {
 	if len(os.Args) == 1 {
@@ -37,8 +37,13 @@ func main() {
 		resp, err := http.Get(url)
 
 		if err != nil {
-			fmt.Println("skipping ")
-			return
+			fmt.Printf("skipping %d: got error %s\n", i, err.Error())
+			continue
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			fmt.Printf("skipping %d: got %d\n", i, resp.StatusCode)
+			continue
 		}
 
 		defer resp.Body.Close()
@@ -46,8 +51,8 @@ func main() {
 		var item xkcd
 
 		if err = json.NewDecoder(resp.Body).Decode(&item); err != nil {
-			fmt.Println("skipping because we could not decode it")
-			return
+			fmt.Printf("skipping %d because we could not decode it", i)
+			continue
 		}
 
 		xkcds = append(xkcds, item)
